@@ -342,7 +342,9 @@ export default {
                     this.showResult = true;
                     }).catch( error => {
                         /*eslint-disable*/
-                        console.log(error);      
+                        console.log(error);
+                        this.errorMessage = error.response.data["message"];                 
+                        this.showError = true;      
                         /*eslint-enable*/
                 })}
                 this.displayPrevNext();
