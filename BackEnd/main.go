@@ -49,7 +49,7 @@ func main() {
 	// router.POST("/Searching", Handlers.PostSearching)
 
 	fmt.Println("Hallo")
-	GlobalVar.Server.Run(":8080")
+	GlobalVar.Server.Run()
 	// foundKMP, firstPosKMP, closedMatchKMP := Script.KnuthMorrisPratt("abacaabaccabacabaabb", "abacabb")
 	// if foundKMP {
 	// 	fmt.Printf("Found match at first index: %d\n", firstPosKMP)
