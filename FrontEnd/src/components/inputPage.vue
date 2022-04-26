@@ -164,7 +164,7 @@ export default {
             resultNamaPenyakit: "",
             persentase: 0,
             isKMP: "1",
-            port: process.env.PORT || 8080,
+            port: "https://kobokdna.herokuapp.com:" + String(process.env.PORT) || "http://localhost:8080",
             arrPenyakit: [{index: 1,namaPenyakit: "a",namaFile: "a"},
                         {index: 2,namaPenyakit: "b",namaFile: "b"},
                         {index: 3,namaPenyakit: "c",namaFile: "c"},
@@ -216,12 +216,12 @@ export default {
         tesDNA() {
             var data_pass = {"user_name": this.namaPengguna, "user_DNA_sequence": this.isiFile, "disease_name": this.namaPenyakit, "method": this.isKMP};
              /*eslint-disable*/
-            axios({ method: "POST", url: "http://localhost:"+String(this.port)+"/v1/testDNA/test", data: data_pass, headers: {"content-type": "text/plain" } }).then(result => { 
+            axios({ method: "POST", url: this.port+"/v1/testDNA/test", data: data_pass, headers: {"content-type": "text/plain" } }).then(result => { 
                 console.log(result.data["message"])
 
                 if (result.data["message"] == "success adding a result") {
                     var query = "?id=" + result.data["id"];
-                    axios({ method: "GET", url: "http://localhost:"+String(this.port)+"/v1/testDNA/result"+query, headers: {"content-type": "text/plain" } }).then(result => { 
+                    axios({ method: "GET", url: this.port+"/v1/testDNA/result"+query, headers: {"content-type": "text/plain" } }).then(result => { 
                     console.log(result)
                     this.resultTanggal = result.data["date"];
                     this.resultNamaPengguna = result.data["user_name"];
@@ -247,7 +247,7 @@ export default {
             var data_pass = {"disease_name": this.newPenyakit, "disease_sequence_DNA": this.isiFile};
             this.addPenyakit = true;
 
-            axios({ method: "POST", url: "http://localhost:"+String(this.port)+"/v1/disease/add", data: data_pass, headers: {"content-type": "text/plain" } }).then(result => { 
+            axios({ method: "POST", url: this.port+"/v1/disease/add", data: data_pass, headers: {"content-type": "text/plain" } }).then(result => { 
                     console.log(result.data["message"])
                     this.succMessage = result.data["message"];
 
@@ -329,7 +329,7 @@ export default {
                 var query = "?date=" + this.tanggal + "&disease_name=" + this.namaPenyakit;
                 console.log(this.tanggal)
                 console.log(this.namaPenyakit)
-                    axios({ method: "GET", url: "http://localhost:"+String(this.port)+"/v1/searching/predictionResult"+query, headers: {"content-type": "text/plain" } }).then(result => { 
+                    axios({ method: "GET", url: this.port+"/v1/searching/predictionResult"+query, headers: {"content-type": "text/plain" } }).then(result => { 
                     console.log(result)
                     this.queryEntered = true;
                     this.arrPenyakit = result.data["predictions"];
