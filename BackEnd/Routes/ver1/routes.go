@@ -7,6 +7,8 @@ import (
 
 func Routes() {
 
+	GlobalVar.Server.GET("/", Controller.RootPages)
+
 	rg := GlobalVar.Server.Group("/v1")
 
 	disease_route := rg.Group("/disease")

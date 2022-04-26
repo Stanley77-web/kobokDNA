@@ -329,6 +329,7 @@ export default {
                 var query = "?date=" + this.tanggal + "&disease_name=" + this.namaPenyakit;
                 console.log(this.tanggal)
                 console.log(this.namaPenyakit)
+                console.log(this.port)
                     axios({ method: "GET", url: this.port+"/v1/searching/predictionResult"+query, headers: {"content-type": "text/plain" } }).then(result => { 
                     console.log(result)
                     this.queryEntered = true;
