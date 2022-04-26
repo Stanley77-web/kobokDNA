@@ -1,1 +1,1 @@
-web: bin/KobokDNA.com
+web: PORT=$PORT bin/KobokDNA.com
