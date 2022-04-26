@@ -1,1 +1,2 @@
 web: bin/KobokDNA.com
+PORT: 8080
