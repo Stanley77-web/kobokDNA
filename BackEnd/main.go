@@ -1,13 +1,13 @@
 package main
 
 import (
-	// "KobokDNA.com/Modules"
+	// "KobokDNA.com/Models"
 	// "KobokDNA.com/Handlers"
 	"fmt"
 	"log"
 
-	"KobokDNA.com/Helper/GlobalVar"
 	"KobokDNA.com/Routes/ver1"
+	"KobokDNA.com/Utils/GlobalVar"
 )
 
 // "net/http"

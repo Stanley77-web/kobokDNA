@@ -1,4 +1,5 @@
 <template>
+    <div>
     <img src="../assets/kobo2_resized.png" style="position:fixed;bottom:0;right:0">
     <div v-if="mainMenu" class = "box-wrapper">
         <h1 style="margin-bottom: 100px;">
@@ -38,7 +39,7 @@
                 <input type="text" v-model="namaPenyakit" class = "menu-option-input" placeholder="<penyakit>">
             </div>
             <div v-if="showResult">
-                {{resultTanggal}} - {{resultNamaPengguna}} - {{resultNamaPenyakit}} - {{persentase}}% - {{diagnosis}}
+                {{resultTanggal}} - {{resultNamaPengguna}} - {{resultNamaPenyakit}} - {{persentase}}% - {{diagnosis ? "True" : "False"}}
             </div>
             <div v-if="showError" style="color:red">
                 {{errorMessage}}
@@ -96,7 +97,7 @@
         </h1>
         <div class="input-option-wrapper">
             <div class = "input-option">
-                <input type="text" v-model="searchQueryInput" class="database-search-input" @keyup.enter="searchQuery(); showError = false; showResult = false">
+                <input type="text" v-model="searchQueryInput" class="database-search-input" @keyup.enter="searchQuery(); showError = false; showResult = false; namaPenyakit = ''; tanggal = ''">
             </div>
             <div v-if="showError" style="color:red">
                 {{errorMessage}}
@@ -125,6 +126,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </template>
 
@@ -162,6 +164,7 @@ export default {
             resultNamaPenyakit: "",
             persentase: 0,
             isKMP: "1",
+            port: process.env.PORT || 8080,
             arrPenyakit: [{index: 1,namaPenyakit: "a",namaFile: "a"},
                         {index: 2,namaPenyakit: "b",namaFile: "b"},
                         {index: 3,namaPenyakit: "c",namaFile: "c"},
@@ -176,9 +179,9 @@ export default {
                         {index: 12,namaPenyakit: "l",namaFile: "l"}
                         ],
             lowIndex: 0,
-            highIndex: 5,
+            highIndex: 10,
             queryLength: 0,
-            dataPerPage: 5,
+            dataPerPage: 10,
         }
     },
     methods:{
@@ -213,12 +216,12 @@ export default {
         tesDNA() {
             var data_pass = {"user_name": this.namaPengguna, "user_DNA_sequence": this.isiFile, "disease_name": this.namaPenyakit, "method": this.isKMP};
              /*eslint-disable*/
-            axios({ method: "POST", url: "http://localhost:8080/v1/testDNA/test", data: data_pass, headers: {"content-type": "text/plain" } }).then(result => { 
+            axios({ method: "POST", url: "http://localhost:"+String(this.port)+"/v1/testDNA/test", data: data_pass, headers: {"content-type": "text/plain" } }).then(result => { 
                 console.log(result.data["message"])
 
                 if (result.data["message"] == "success adding a result") {
                     var query = "?id=" + result.data["id"];
-                    axios({ method: "GET", url: "http://localhost:8080/v1/testDNA/result"+query, headers: {"content-type": "text/plain" } }).then(result => { 
+                    axios({ method: "GET", url: "http://localhost:"+String(this.port)+"/v1/testDNA/result"+query, headers: {"content-type": "text/plain" } }).then(result => { 
                     console.log(result)
                     this.resultTanggal = result.data["date"];
                     this.resultNamaPengguna = result.data["user_name"];
@@ -244,16 +247,10 @@ export default {
             var data_pass = {"disease_name": this.newPenyakit, "disease_sequence_DNA": this.isiFile};
             this.addPenyakit = true;
 
-            axios({ method: "POST", url: "http://localhost:8080/v1/disease/add", data: data_pass, headers: {"content-type": "text/plain" } }).then(result => { 
+            axios({ method: "POST", url: "http://localhost:"+String(this.port)+"/v1/disease/add", data: data_pass, headers: {"content-type": "text/plain" } }).then(result => { 
                     console.log(result.data["message"])
-                    // console.log(data_pass)
                     this.succMessage = result.data["message"];
-                    // console.log("dontol")
-                    /*eslint-enable*/
-                    // this.response = result.data;
-                    // this.respPenyakit = result.data[""];
-                    /*eslint-disable*/
-                    // console.log(result.data) 
+
                     /*eslint-enable*/
                     this.showResult = true;
                     }).catch( error => {
@@ -265,50 +262,90 @@ export default {
             })},
 
         searchQuery(){
+            this.lowIndex = 0;
+            this.highIndex = 10;
             if (this.searchQueryInput == "") {
                 this.queryEntered = false;
             } else {
                 var splitInput = this.searchQueryInput.split(" ");
+                var onlyName = false;
                 var valid = false;
-                if (splitInput.length == 4) {
-                    this.tanggal = String(splitInput[0] + " " + splitInput[1] + " " + splitInput[2]);
-                    this.namaPenyakit = String(splitInput[3]);
-                    valid = true;
-                } else if (splitInput.length == 2) {
-                    this.tanggal = String(splitInput[0]);
-                    this.namaPenyakit = String(splitInput[1]);
-                    valid = true;
-                }
+                var bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
                 
-                if (valid) {
-                    var query = "?date=" + this.tanggal + "&disease_name=" + this.namaPenyakit;
-                    console.log(this.tanggal)
-                    console.log(this.namaPenyakit)
-                        axios({ method: "GET", url: "http://localhost:8080/v1/searching/predictionResult"+query, headers: {"content-type": "text/plain" } }).then(result => { 
-                        console.log(result)
-                        this.queryEntered = true;
-                        this.arrPenyakit = result.data["predictions"];
-                        this.queryLength = result.data["predictions"].length;
-                        if (this.queryLength > this.dataPerPage) {
-                            this.displayNext = true;
+                if (splitInput.length == 1) {
+                    onlyName = true;
+                }
+
+                if (splitInput.length >= 4) {
+                    if (bulan.includes(splitInput[1])) {
+                        this.tanggal = splitInput[0] + " " + splitInput[1] + " " + splitInput[2];
+                        for (let i = 3; i < splitInput.length; i++) {
+                            this.namaPenyakit += splitInput[i];
+                            if (i != splitInput.length - 1) {
+                                this.namaPenyakit +=  " "
+                            }
                         }
-                        // console.log(data_pass)
-                        // console.log("dontol")
-                        /*eslint-enable*/
-                        // this.response = result.data;
-                        // this.respPenyakit = result.data[""];
+                        valid = true;
+                    } else {
+                        onlyName = false;
+                    }
+                } 
+                
+                if (splitInput.length >= 2 && valid == false) {
+                    this.tanggal = splitInput[0];
+                    if (this.tanggal.split("-").length == 3 || this.namaPenyakit.split("/").length == 3) {
+                        for (let i = 1; i < splitInput.length; i++) {
+                            this.namaPenyakit += String(splitInput[i]);
+                            if (i != splitInput.length - 1) {
+                                this.namaPenyakit +=  " "
+                            }
+                        }
+                        valid = true;
+                    } else {
+                        this.tanggal = "";
+                        onlyName = true;
+                    }
+                } 
+                
+                if (splitInput.length == 3 && valid == false) {
+                    if (bulan.includes(splitInput[1])) {
+                        this.tanggal = splitInput[0] + " " + splitInput[1] + " " + splitInput[2];
+                        valid = true;
+                    } else {
+                        this.tanggal = "";
+                        onlyName = true
+                    }
+                } 
+
+                if (onlyName && valid == false) {
+                    for (let i = 0; i < splitInput.length; i++) {
+                        this.namaPenyakit += splitInput[i]
+                        if (i != splitInput.length - 1) {
+                            this.namaPenyakit +=  " "
+                        }
+                    }
+                }
+
+                var query = "?date=" + this.tanggal + "&disease_name=" + this.namaPenyakit;
+                console.log(this.tanggal)
+                console.log(this.namaPenyakit)
+                    axios({ method: "GET", url: "http://localhost:"+String(this.port)+"/v1/searching/predictionResult"+query, headers: {"content-type": "text/plain" } }).then(result => { 
+                    console.log(result)
+                    this.queryEntered = true;
+                    this.arrPenyakit = result.data["predictions"];
+                    this.queryLength = result.data["predictions"].length;
+
+                    if (this.queryLength > this.dataPerPage) {
+                        this.displayNext = true;
+                    }
+
+                    this.showResult = true;
+                    }).catch( error => {
                         /*eslint-disable*/
-                        // console.log(result.data) 
+                        console.log(error);      
                         /*eslint-enable*/
-                        this.showResult = true;
-                        }).catch( error => {
-                            /*eslint-disable*/
-                            console.log(error);      
-                            this.errorMessage = error.response.data["message"];                 
-                            this.showError = true;
-                            /*eslint-enable*/
                 })}
-            }
+                this.displayPrevNext();
             
         },
         nextQuery(){
@@ -340,77 +377,19 @@ export default {
 
         displayPrevNext() {
             console.log(this.lowIndex)
-            console.log(this.highIndex + this.dataPerPage)
-            if (this.lowIndex + this.dataPerPage > this.queryLength) {
+            console.log(this.lowIndex + this.dataPerPage)
+            console.log(this.queryLength)
+            if (this.lowIndex + this.dataPerPage >= this.queryLength) {
                 this.displayNext = false;
             } else {
                 this.displayNext = true;
             }
-            if (this.lowIndex < 5) {
+            if (this.lowIndex < this.dataPerPage) {
                 this.displayPrev = false;
             } else {
                 this.displayPrev = true;
             }
         },
-        fileSelected(name, listFile){
-            this.fileUpload = listFile[0]
-            this.namafile = listFile[0].name
-            const fileReader = new FileReader()
-            fileReader.readAsDataURL(this.fileUpload)
-            console.log(this.percentage)                    
-            fileReader.addEventListener('load', ()=>{                   
-                this.imageURL = fileReader.result
-                this.test = {'base64' : this.imageURL, 'percentage' : this.percentage,'namaFile' : this.fileUpload.name} //Membuat data yang akan di send ke json
-                fetch('http://localhost:3000/image',{
-                    method:'POST', //Upload Sequence ke server json
-                    headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify(this.test)
-                })
-            })
-            
-            
-
-        },
-        compress(){             //Fungsi yang dipanggil ketika tombol compress ditekan
-            // this.statusUpload = CONVERTING_STATUS
-            // this.startTimer()
-            // axios.get(this.pathFlask,{ responseType: 'blob'})       //Melakukan request ke server flask
-            //     .then((res)=>{
-            //         this.stopTimer()
-            //         this.time = this.time /1000
-            //         this.fileGet = res.data
-            //         console.log(this.fileGet)
-            //         const fileReader = new FileReader()
-            //         fileReader.readAsDataURL(this.fileGet)
-            //          fileReader.addEventListener('load', ()=>{
-            //              this.imageURL2 = fileReader.result
-            //              console.log(this.imageURL2)
-            //          })
-                    
-            //         this.statusUpload = SUCCESS_STATUS
-            //     })
-            //     .catch(err=>{console.log(err.message),this.reset()})
-
-        },
-        download(){             //Fungsi yang digunakan ketika tombol download ditekan
-            var fileURL = window.URL.createObjectURL(this.fileGet)
-            var fileLink = document.createElement('a')
-            fileLink.href = fileURL
-            this.namafile2 = this.namafile.split('.').slice(0,-1).join('.')    //Mengambil namafile
-            this.ext = this.namafile.substring(this.namafile.lastIndexOf('.') + 1) //Mengambil extension file
-            this.namafile2 = this.namafile2 + '_Compressed.'+this.ext   //Menambahkan compressed di belakang nama file
-            fileLink.setAttribute('download',this.namafile2)
-            document.body.appendChild(fileLink)
-            fileLink.click()
-        },
-        startTimer(){
-            this.time = 0           //Memulai timer
-            this.timer = Date.now()
-        },
-        stopTimer(){
-            this.time = Date.now()-this.timer       //memberhentikan timer
-            clearInterval(this.timer)
-        }
         
         
     },

@@ -3,13 +3,13 @@ package Service
 import (
 	"errors"
 
-	"KobokDNA.com/Helper/GlobalVar"
-	"KobokDNA.com/Helper/ValidatorInput"
-	"KobokDNA.com/Modules"
+	"KobokDNA.com/Models"
+	"KobokDNA.com/Utils/GlobalVar"
+	"KobokDNA.com/Utils/ValidatorInput"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func AddDisease(Disease *Modules.Disease) error {
+func AddDisease(Disease *Models.Disease) error {
 
 	if _, err := getDisease(&Disease.DiseaseName); err == nil {
 		return errors.New("Disease already exist")
@@ -25,7 +25,7 @@ func AddDisease(Disease *Modules.Disease) error {
 }
 
 func getDisease(DiseaseName *string) (string, error) {
-	var Disease *Modules.Disease
+	var Disease *Models.Disease
 	var DiseaseDNA string
 
 	query := bson.D{bson.E{Key: "name_disease", Value: DiseaseName}}

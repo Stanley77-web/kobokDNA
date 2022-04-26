@@ -2,7 +2,7 @@ package ver1
 
 import (
 	"KobokDNA.com/Controller"
-	"KobokDNA.com/Helper/GlobalVar"
+	"KobokDNA.com/Utils/GlobalVar"
 )
 
 func Routes() {

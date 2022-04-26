@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"KobokDNA.com/Modules"
+	"KobokDNA.com/Models"
 	"KobokDNA.com/Service"
 	"github.com/gin-gonic/gin"
 )
 
 func TestDNAController(ctx *gin.Context) {
-	var TestData Modules.TestData
+	var TestData Models.TestData
 
 	if err := ctx.ShouldBindJSON(&TestData); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})

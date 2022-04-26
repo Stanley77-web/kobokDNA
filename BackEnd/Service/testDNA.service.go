@@ -7,15 +7,15 @@ import (
 	"fmt"
 	"time"
 
-	"KobokDNA.com/Helper/GlobalVar"
-	"KobokDNA.com/Helper/ValidatorInput"
 	"KobokDNA.com/Lib/Similarity"
 	"KobokDNA.com/Lib/StringMatching"
-	"KobokDNA.com/Modules"
+	"KobokDNA.com/Models"
+	"KobokDNA.com/Utils/GlobalVar"
+	"KobokDNA.com/Utils/ValidatorInput"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func TestDNA(TestData Modules.TestData) (int, error) {
+func TestDNA(TestData Models.TestData) (int, error) {
 
 	// cari di database
 	userName := TestData.UserName
@@ -26,6 +26,7 @@ func TestDNA(TestData Modules.TestData) (int, error) {
 	if err := ValidatorInput.DNAValidator(userDNA); err != nil {
 		return 0, err
 	}
+
 	now := time.Now()
 	dateNow := fmt.Sprintf("%d %s %d", now.Day(), GlobalVar.Bulan[int(now.Month())], now.Year())
 
@@ -56,7 +57,7 @@ func TestDNA(TestData Modules.TestData) (int, error) {
 	}
 
 	id := GlobalVar.Len + 1
-	result := Modules.Result{
+	result := Models.Result{
 		ID:              int(id),
 		Date:            dateNow,
 		UserName:        userName,
@@ -74,13 +75,13 @@ func TestDNA(TestData Modules.TestData) (int, error) {
 	return int(id), nil
 }
 
-func postResult(result *Modules.Result) error {
+func postResult(result *Models.Result) error {
 	_, err := GlobalVar.ResultCollection.InsertOne(GlobalVar.Ctx, result)
 	return err
 }
 
-func TestResult(ID *int) (*Modules.Result, error) {
-	var result *Modules.Result
+func TestResult(ID *int) (*Models.Result, error) {
+	var result *Models.Result
 
 	filter := bson.D{bson.E{Key: "id", Value: ID}}
 	err := GlobalVar.ResultCollection.FindOne(GlobalVar.Ctx, filter).Decode(&result)

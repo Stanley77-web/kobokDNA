@@ -3,13 +3,13 @@ package Controller
 import (
 	"net/http"
 
-	"KobokDNA.com/Modules"
+	"KobokDNA.com/Models"
 	"KobokDNA.com/Service"
 	"github.com/gin-gonic/gin"
 )
 
 func AddDiseaseController(ctx *gin.Context) {
-	var disease Modules.Disease
+	var disease Models.Disease
 	err := ctx.ShouldBindJSON(&disease)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})

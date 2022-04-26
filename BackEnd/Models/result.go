@@ -1,4 +1,4 @@
-package Modules
+package Models
 
 type Result struct {
 	ID              int    `json:"id" bson:"id"`

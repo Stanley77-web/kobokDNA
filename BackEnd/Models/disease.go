@@ -1,4 +1,4 @@
-package Modules
+package Models
 
 type Disease struct {
 	DiseaseName string `json:"disease_name" bson:"name_disease" binding:"required"`

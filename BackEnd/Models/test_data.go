@@ -1,4 +1,4 @@
-package Modules
+package Models
 
 type TestData struct {
 	UserName    string `json:"user_name" binding:"required"`
