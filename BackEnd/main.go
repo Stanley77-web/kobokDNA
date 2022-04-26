@@ -5,7 +5,6 @@ import (
 	// "KobokDNA.com/Handlers"
 	"fmt"
 	"log"
-	"os"
 
 	"KobokDNA.com/Helper/GlobalVar"
 	"KobokDNA.com/Routes/ver1"
@@ -50,7 +49,7 @@ func main() {
 	// router.POST("/Searching", Handlers.PostSearching)
 
 	fmt.Println("Hallo")
-	GlobalVar.Server.Run(os.Getenv("PORT"))
+	GlobalVar.Server.Run()
 	// foundKMP, firstPosKMP, closedMatchKMP := Script.KnuthMorrisPratt("abacaabaccabacabaabb", "abacabb")
 	// if foundKMP {
 	// 	fmt.Printf("Found match at first index: %d\n", firstPosKMP)
