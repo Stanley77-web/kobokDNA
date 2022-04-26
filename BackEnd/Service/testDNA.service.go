@@ -28,6 +28,7 @@ func TestDNA(TestData Models.TestData) (int, error) {
 	}
 
 	now := time.Now()
+	fmt.Println(now.Date())
 	dateNow := fmt.Sprintf("%d %s %d", now.Day(), GlobalVar.Bulan[int(now.Month())], now.Year())
 
 	diagnosis := false

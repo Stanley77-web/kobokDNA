@@ -1,7 +1,6 @@
 package Similarity
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -77,7 +76,6 @@ func SimilarityScore(DNApengguna string, DNApenyakit string) int {
 
 	for {
 		tempDiff := HammingDistance(DNApengguna[idxFirst:idxLast], DNApenyakit)
-		fmt.Println(tempDiff)
 		if tempDiff < diff && tempDiff != -1 {
 			diff = tempDiff
 		}
