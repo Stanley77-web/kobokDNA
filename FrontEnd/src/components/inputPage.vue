@@ -277,7 +277,7 @@ export default {
                 }
 
                 if (splitInput.length >= 4) {
-                    if (bulan.includes(splitInput[1])) {
+                    if (bulan.includes(splitInput[0]) || bulan.includes(splitInput[1]) || bulan.includes(splitInput[2])) {
                         this.tanggal = splitInput[0] + " " + splitInput[1] + " " + splitInput[2];
                         for (let i = 3; i < splitInput.length; i++) {
                             this.namaPenyakit += splitInput[i];
@@ -308,7 +308,7 @@ export default {
                 } 
                 
                 if (splitInput.length == 3 && valid == false) {
-                    if (bulan.includes(splitInput[1])) {
+                    if (bulan.includes(splitInput[0]) || bulan.includes(splitInput[1]) || bulan.includes(splitInput[2])) {
                         this.tanggal = splitInput[0] + " " + splitInput[1] + " " + splitInput[2];
                         valid = true;
                     } else {
