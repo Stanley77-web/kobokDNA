@@ -272,6 +272,12 @@ export default {
                 var valid = false;
                 var bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
                 
+                if (this.searchQueryInput == "") {
+                    this.tanggal = "";
+                    this.namaPenyakit = "";
+                    valid = true;
+                }
+
                 if (splitInput.length == 1) {
                     onlyName = true;
                 }
