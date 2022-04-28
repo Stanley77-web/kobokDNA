@@ -116,6 +116,8 @@ func AllPrediction(diseaseName *string, date *string) ([]Models.Result, error) {
 		filter = bson.D{bson.E{Key: "date", Value: date_in_database}}
 	} else if *date == "" {
 		filter = bson.D{bson.E{Key: "disease_name", Value: diseaseName}}
+	} else if *date != "" && *diseaseName != "" {
+		filter = bson.D{{}}
 	} else {
 		filter = bson.D{bson.E{Key: "disease_name", Value: diseaseName}, bson.E{Key: "date", Value: date_in_database}}
 	}
