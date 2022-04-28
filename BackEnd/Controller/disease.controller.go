@@ -12,7 +12,7 @@ func AddDiseaseController(ctx *gin.Context) {
 	var disease Models.Disease
 	err := ctx.ShouldBindJSON(&disease)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Semua field harus diisi"})
 		return
 	}
 
