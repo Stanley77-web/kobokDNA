@@ -164,7 +164,7 @@ export default {
             resultNamaPenyakit: "",
             persentase: 0,
             isKMP: "1",
-            port: "http://localhost:8080",
+            port: "https://kobokdna.herokuapp.com" || "http://localhost:8080",
             arrPenyakit: [{index: 1,namaPenyakit: "a",namaFile: "a"},
                         {index: 2,namaPenyakit: "b",namaFile: "b"},
                         {index: 3,namaPenyakit: "c",namaFile: "c"},
