@@ -19,7 +19,7 @@ func TestDNAController(ctx *gin.Context) {
 
 	ID, err := Service.TestDNA(TestData)
 	if err != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"message": "DNA sequence for this disease is not found"})
+		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
 		return
 	}
 
