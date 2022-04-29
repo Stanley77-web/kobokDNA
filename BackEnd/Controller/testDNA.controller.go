@@ -1,7 +1,6 @@
 package Controller
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -33,8 +32,6 @@ func TestDNAController(ctx *gin.Context) {
 func GetTestResult(ctx *gin.Context) {
 	ID, errors := strconv.Atoi(ctx.Query("id"))
 
-	fmt.Println(ID)
-
 	if errors != nil {
 		ctx.JSON(http.StatusNotAcceptable, gin.H{"message": errors.Error()})
 		return
@@ -54,9 +51,3 @@ func GetTestResult(ctx *gin.Context) {
 		"status":           result.Status,
 	})
 }
-
-// func testDNARoutes(rg *gin.RouterGroup) {
-// 	disease_route := rg.Group("/testDNA")
-// 	disease_route.POST("/test", TestDNAController)
-// 	disease_route.GET("/result/:name/:date", GetTestResult)
-// }

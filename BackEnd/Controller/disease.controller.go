@@ -23,8 +23,3 @@ func AddDiseaseController(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Success adding a disease"})
 }
-
-// func DiseaseRoutes(rg *gin.RouterGroup) {
-// 	disease_route := rg.Group("/disease")
-// 	disease_route.POST("/add", AddDiseaseController)
-// }

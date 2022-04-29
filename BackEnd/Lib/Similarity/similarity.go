@@ -4,98 +4,53 @@ import (
 	"math"
 )
 
-func HammingDistance(DNApengguna string, DNApenyakit string) int {
-	if len(DNApengguna) != len(DNApenyakit) {
-		return -1
-	} else {
-		counter := 0
-		for i := 0; i < len(DNApengguna); i++ {
-			if DNApengguna[i] != DNApenyakit[i] {
-				counter++
+func damerauLevenshteinDistance(DNApengguna string, DNApenyakit string) int {
+	n := len(DNApengguna) + 1
+	m := len(DNApenyakit) + 1
+
+	dist := make([]int, (n)*(m))
+	for i := 1; i < n; i++ {
+		dist[i*(m)] = i
+	}
+	for j := 1; j < m; j++ {
+		dist[j] = j
+	}
+	for i := 0; i < n; i++ {
+		for j := 0; j < m; j++ {
+		}
+	}
+	for i := 1; i < n; i++ {
+		for j := 1; j < m; j++ {
+
+			var cost int
+
+			if DNApengguna[i-1] != DNApenyakit[j-1] {
+				cost = 1
+			} else {
+				cost = 0
+			}
+			del := float64(dist[(i-1)*(m)+j] + 1)
+			ins := float64(dist[i*(m)+(j-1)] + 1)
+			subs := float64(dist[(i-1)*(m)+(j-1)] + cost)
+			dist[i*(m)+j] = int(math.Min(math.Min(del, ins), subs))
+			if i > 1 && j > 1 && DNApengguna[i-1] == DNApenyakit[j-2] && DNApengguna[i-2] == DNApenyakit[j-1] {
+				trans1 := float64(dist[i*(m)+j])
+				trans2 := float64(dist[(i-2)*(m)+(j-2)] + 1)
+				dist[i*m+j] = int(math.Min(trans1, trans2))
 			}
 		}
-		return counter
 	}
-}
-
-func LCSDistance(closedMatch string, DNApenyakit string, m int, n int) int {
-	if m == 0 || n == 0 {
-		return 0
-	} else if closedMatch[m-1] == DNApenyakit[n-1] {
-		return 1 + LCSDistance(closedMatch, DNApenyakit, m-1, n-1)
-	} else {
-		return int(math.Max(float64(LCSDistance(closedMatch, DNApenyakit, m, n-1)),
-			float64(LCSDistance(closedMatch, DNApenyakit, m-1, n))))
+	for i := 0; i < n; i++ {
+		for j := 0; j < m; j++ {
+		}
 	}
+	return dist[(n)*(m)-1]
 }
 
 func Similarity(length int, distance int) int {
 	return distance * 100 / length
 }
 
-func CosineSimilarity(DNApengguna string, DNApenyakit string) float64 {
-
-	vectorPengguna := stringToVector(DNApengguna)
-	vectorPenyakit := stringToVector(DNApenyakit)
-
-	dotproduct := 0
-	squareNormPengguna := 0
-	squareNormPenyakit := 0
-
-	for key, valuePengguna := range vectorPengguna {
-		if valuePenyakit, ok := vectorPenyakit[key]; ok {
-			dotproduct += valuePengguna * valuePenyakit
-		}
-	}
-
-	for _, value := range vectorPengguna {
-		squareNormPengguna += value * value
-	}
-
-	for _, value := range vectorPenyakit {
-		squareNormPenyakit += value * value
-	}
-
-	normPengguna := math.Sqrt(float64(squareNormPengguna))
-	normPenyakit := math.Sqrt(float64(squareNormPenyakit))
-
-	if normPengguna*normPenyakit == 0 {
-		return -1
-	} else {
-		return float64(dotproduct) / (normPengguna * normPenyakit)
-	}
-}
-
 func SimilarityScore(DNApengguna string, DNApenyakit string) int {
-	n := len(DNApengguna)
-	m := len(DNApenyakit)
-
-	idxFirst := 0
-	idxLast := m
-	diff := m
-
-	for {
-		tempDiff := HammingDistance(DNApengguna[idxFirst:idxLast], DNApenyakit)
-		if tempDiff < diff && tempDiff != -1 {
-			diff = tempDiff
-		}
-		idxFirst += 1
-		idxLast += 1
-		if idxLast > n {
-			break
-		}
-	}
-	return int((1 - float64(diff)/float64(m)) * 100)
-}
-
-func stringToVector(SequenceDNA string) map[byte]int {
-	vector := make(map[byte]int)
-	for i := 0; i < len(SequenceDNA); i++ {
-		if _, ok := vector[SequenceDNA[i]]; ok {
-			vector[SequenceDNA[i]]++
-		} else {
-			vector[SequenceDNA[i]] = 1
-		}
-	}
-	return vector
+	return int((1.0 - float64(damerauLevenshteinDistance(DNApengguna, DNApenyakit))/float64(len(DNApengguna))) * 100.0)
 }

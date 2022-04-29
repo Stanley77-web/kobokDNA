@@ -2,6 +2,16 @@ package StringMatching
 
 import "math"
 
+/*
+	String matching menggunakan algoritma Knuth-Morris-Pratt
+
+	Fungsi KnuthMorrisPratt menerima masukan pattern DNA pengguna
+	dan DNA penyakit
+
+	Fungsi ini akan mengembalikan nilai true jika pattern DNA pengguna
+	sama dengan pattern DNA penyakit
+*/
+
 func KnuthMorrisPratt(DNApengguna string, DNApenyakit string) bool {
 	n := len(DNApengguna)
 	m := len(DNApenyakit)
@@ -29,9 +39,16 @@ func KnuthMorrisPratt(DNApengguna string, DNApenyakit string) bool {
 			i++
 		}
 	}
-	// , string(DNApenyakit[:matchMax])
 	return false
 }
+
+/*
+	Fungsi untuk membuat border function dari pattern DNA penyakit
+	yang dimasukkan
+
+	Untuk tiap n, akan dibuat array yang berisi index prefix terbesar
+	dari pattern DNA penyakit
+*/
 
 func border(DNApenyakit string) []int {
 	var border []int = make([]int, len(DNApenyakit))
@@ -57,6 +74,16 @@ func border(DNApenyakit string) []int {
 	return border
 }
 
+/*
+	String matching menggunakan algoritma Boyer-Moore
+
+	Fungsi KnuthMorrisPratt menerima masukan pattern DNA pengguna
+	dan DNA penyakit
+
+	Fungsi ini akan mengembalikan nilai true jika pattern DNA pengguna
+	sama dengan pattern DNA penyakit
+*/
+
 func BoyerMoore(DNApengguna string, DNApenyakit string) bool {
 	IdxLastOccurChar := idxChar(DNApenyakit)
 	n := len(DNApengguna)
@@ -69,13 +96,13 @@ func BoyerMoore(DNApengguna string, DNApenyakit string) bool {
 		if DNApengguna[i] == DNApenyakit[j] {
 			if j == 0 {
 				return true
-			}
+			} // teknik looking-glass
 			i--
 			j--
 		} else {
 			if idxMatchMax > j {
 				idxMatchMax = j
-			}
+			} // teknik character-jump
 			lo := IdxLastOccurChar[DNApengguna[i]]
 			i = i + m - int(math.Min(float64(j), float64(lo+1)))
 			j = m - 1
@@ -84,9 +111,16 @@ func BoyerMoore(DNApengguna string, DNApenyakit string) bool {
 			break
 		}
 	}
-	// , DNApenyakit[idxMatchMax+1 : m]
 	return false
 }
+
+/*
+	Fungsi untuk membuat last occurrence function dari pattern DNA
+	penyakit yang dimasukkan
+
+	Untuk tiap karakter, akan dibuat map yang berisi last occurrence
+	dari pattern DNA penyakit
+*/
 
 func idxChar(DNApenyakit string) map[byte]int {
 	IdxLastOccurChar := make(map[byte]int)

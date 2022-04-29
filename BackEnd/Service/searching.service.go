@@ -13,113 +13,26 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func AllPrediction(diseaseName *string, date *string) ([]Models.Result, error) {
+func AllPrediction(query *string) ([]Models.Result, error) {
 	var results []Models.Result
 	var filter primitive.D
-	var date_in_database string
 
-	valid_date := "DD/MM/YYYY or DD-MM-YYYY or DD MM YYYY"
+	date, diseaseName, err := parserQuery(*query)
 
-	if *date != "" {
-		str_date := strings.Split(*date, "-")
-		if len(str_date) != 3 {
-			str_date = strings.Split(*date, "/")
-			if len(str_date) != 3 {
-				str_date = strings.Split(*date, " ")
-				if len(str_date) != 3 {
-					return results, errors.New(fmt.Sprintf("Date format is not valid (use %s)", valid_date))
-				}
-			}
-		}
-
-		types, err := ValidatorInput.DateValidator(*date)
-		if err != nil {
-			return results, errors.New(fmt.Sprintf("%s (use %s)", err.Error(), valid_date))
-		} else {
-			switch types {
-			// case "dd/mm/yyyy"
-			case 1:
-				month, _ := strconv.Atoi(str_date[1])
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[0], GlobalVar.Bulan[month], str_date[2])
-			case 2:
-				month, _ := strconv.Atoi(str_date[0])
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[1], GlobalVar.Bulan[month], str_date[2])
-			case 3:
-				month, _ := strconv.Atoi(str_date[2])
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[1], GlobalVar.Bulan[month], str_date[0])
-			case 4:
-				month, _ := strconv.Atoi(str_date[1])
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[2], GlobalVar.Bulan[month], str_date[0])
-
-			// case "dd-mm-yyyy"
-			case 5:
-				month, _ := strconv.Atoi(str_date[1])
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[0], GlobalVar.Bulan[month], str_date[2])
-			case 6:
-				month, _ := strconv.Atoi(str_date[0])
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[1], GlobalVar.Bulan[month], str_date[2])
-			case 7:
-				month, _ := strconv.Atoi(str_date[2])
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[1], GlobalVar.Bulan[month], str_date[0])
-			case 8:
-				month, _ := strconv.Atoi(str_date[1])
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[2], GlobalVar.Bulan[month], str_date[0])
-
-			// case "dd/mm/yyyy"
-			case 9:
-				month, _ := strconv.Atoi(str_date[1])
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[0], GlobalVar.Bulan[month], str_date[2])
-			case 10:
-				month, _ := strconv.Atoi(str_date[0])
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[1], GlobalVar.Bulan[month], str_date[2])
-			case 11:
-				month, _ := strconv.Atoi(str_date[2])
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[1], GlobalVar.Bulan[month], str_date[0])
-			case 12:
-				month, _ := strconv.Atoi(str_date[1])
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[2], GlobalVar.Bulan[month], str_date[0])
-
-			// case "dd/bulan/yyyy"
-			case 13:
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[0], str_date[1], str_date[2])
-			case 14:
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[1], str_date[0], str_date[2])
-			case 15:
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[1], str_date[2], str_date[0])
-			case 16:
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[2], str_date[1], str_date[0])
-
-			// case "dd-bulan-yyyy"
-			case 17:
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[0], str_date[1], str_date[2])
-			case 18:
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[1], str_date[0], str_date[2])
-			case 19:
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[1], str_date[2], str_date[0])
-			case 20:
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[2], str_date[1], str_date[0])
-
-			// case "dd bulan yyyy"
-			case 21:
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[0], str_date[1], str_date[2])
-			case 22:
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[1], str_date[0], str_date[2])
-			case 23:
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[1], str_date[2], str_date[0])
-			case 24:
-				date_in_database = fmt.Sprintf("%s %s %s", str_date[2], str_date[1], str_date[0])
-			}
-		}
-	}
-
-	if *diseaseName == "" {
-		filter = bson.D{bson.E{Key: "date", Value: date_in_database}}
-	} else if *date == "" {
-		filter = bson.D{bson.E{Key: "disease_name", Value: diseaseName}}
-	} else if *date != "" && *diseaseName != "" {
+	if diseaseName == "" {
+		filter = bson.D{bson.E{Key: "date", Value: date}}
+	} else if date == "" {
+		filter = bson.D{bson.E{Key: "disease_name", Value: primitive.Regex{
+			Pattern: diseaseName,
+			Options: "i",
+		}}}
+	} else if date == "" && diseaseName == "" {
 		filter = bson.D{{}}
 	} else {
-		filter = bson.D{bson.E{Key: "disease_name", Value: diseaseName}, bson.E{Key: "date", Value: date_in_database}}
+		filter = bson.D{bson.E{Key: "disease_name", Value: primitive.Regex{
+			Pattern: diseaseName,
+			Options: "i",
+		}}, bson.E{Key: "date", Value: date}}
 	}
 
 	cursor, err := GlobalVar.ResultCollection.Find(GlobalVar.Ctx, filter)
@@ -145,4 +58,110 @@ func AllPrediction(diseaseName *string, date *string) ([]Models.Result, error) {
 		return nil, errors.New("There isn't prediction result data")
 	}
 	return results, nil
+}
+
+/*
+   Fungai parser untuk menghandle setiap hasil inputan pengguna
+
+*/
+func parserQuery(query string) (string, string, error) {
+	types, err := ValidatorInput.SearchValidator(query)
+	date := ""
+	diseaseName := ""
+	if err != nil {
+		return date, diseaseName, err
+	} else {
+		switch types {
+		case 1:
+			str_date := strings.Split(query, "/")
+			month, _ := strconv.Atoi(str_date[1])
+			date = fmt.Sprintf("%s %s %s", str_date[0], GlobalVar.Bulan[month], str_date[2])
+		case 2:
+			splitQuery := strings.Split(query, " ")
+			str_date := strings.Split(splitQuery[0], "/")
+			month, _ := strconv.Atoi(str_date[1])
+			date = fmt.Sprintf("%s %s %s", str_date[0], GlobalVar.Bulan[month], str_date[2])
+			for i := 1; i < len(splitQuery); i++ {
+				diseaseName += splitQuery[i]
+				if i != len(splitQuery)-1 {
+					diseaseName += " "
+				}
+			}
+
+		case 3:
+			str_date := strings.Split(query, "-")
+			month, _ := strconv.Atoi(str_date[1])
+			date = fmt.Sprintf("%s %s %s", str_date[0], GlobalVar.Bulan[month], str_date[2])
+		case 4:
+			splitQuery := strings.Split(query, " ")
+			str_date := strings.Split(splitQuery[0], "-")
+			month, _ := strconv.Atoi(str_date[1])
+			date = fmt.Sprintf("%s %s %s", str_date[0], GlobalVar.Bulan[month], str_date[2])
+			for i := 1; i < len(splitQuery); i++ {
+				diseaseName += splitQuery[i]
+				if i != len(splitQuery)-1 {
+					diseaseName += " "
+				}
+			}
+
+		case 5:
+			str_date := strings.Split(query, " ")
+			month, _ := strconv.Atoi(str_date[1])
+			date = fmt.Sprintf("%s %s %s", str_date[0], GlobalVar.Bulan[month], str_date[2])
+		case 6:
+			splitQuery := strings.Split(query, " ")
+			month, _ := strconv.Atoi(splitQuery[1])
+			date = fmt.Sprintf("%s %s %s", splitQuery[0], GlobalVar.Bulan[month], splitQuery[2])
+			for i := 3; i < len(splitQuery); i++ {
+				diseaseName += splitQuery[i]
+				if i != len(splitQuery)-1 {
+					diseaseName += " "
+				}
+			}
+
+		case 7:
+			str_date := strings.Split(query, "/")
+			date = fmt.Sprintf("%s %s %s", str_date[0], str_date[1], str_date[2])
+		case 8:
+			splitQuery := strings.Split(query, " ")
+			str_date := strings.Split(splitQuery[0], "/")
+			date = fmt.Sprintf("%s %s %s", str_date[0], str_date[1], str_date[2])
+			for i := 1; i < len(splitQuery); i++ {
+				diseaseName += splitQuery[i]
+				if i != len(splitQuery)-1 {
+					diseaseName += " "
+				}
+			}
+
+		case 9:
+			str_date := strings.Split(query, "-")
+			date = fmt.Sprintf("%s %s %s", str_date[0], str_date[1], str_date[2])
+		case 10:
+			splitQuery := strings.Split(query, " ")
+			str_date := strings.Split(splitQuery[0], "-")
+			date = fmt.Sprintf("%s %s %s", str_date[0], str_date[1], str_date[2])
+			for i := 1; i < len(splitQuery); i++ {
+				diseaseName += splitQuery[i]
+				if i != len(splitQuery)-1 {
+					diseaseName += " "
+				}
+			}
+
+		case 11:
+			str_date := strings.Split(query, " ")
+			date = fmt.Sprintf("%s %s %s", str_date[0], str_date[1], str_date[2])
+		case 12:
+			splitQuery := strings.Split(query, " ")
+			date = fmt.Sprintf("%s %s %s", splitQuery[0], splitQuery[1], splitQuery[2])
+			for i := 3; i < len(splitQuery); i++ {
+				diseaseName += splitQuery[i]
+				if i != len(splitQuery)-1 {
+					diseaseName += " "
+				}
+			}
+		case 13:
+			diseaseName = query
+		}
+		return date, diseaseName, nil
+	}
 }

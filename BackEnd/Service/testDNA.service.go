@@ -28,7 +28,6 @@ func TestDNA(TestData Models.TestData) (int, error) {
 	}
 
 	now := time.Now()
-	fmt.Println(now.Date())
 	dateNow := fmt.Sprintf("%d %s %d", now.Day(), GlobalVar.Bulan[int(now.Month())], now.Year())
 
 	diagnosis := false
@@ -49,9 +48,7 @@ func TestDNA(TestData Models.TestData) (int, error) {
 	if diagnosis {
 		similarityScore = 100
 	} else {
-		// distance := Similarity.LCSDistance(closedMatch, DNApenyakit, len(closedMatch), len(DNApenyakit))
 		similarityScore = Similarity.SimilarityScore(userDNA, DiseaseDNA)
-		fmt.Println("Similarity Score : ", similarityScore)
 		if similarityScore > 80 {
 			diagnosis = true
 		}
@@ -86,6 +83,5 @@ func TestResult(ID *int) (*Models.Result, error) {
 
 	filter := bson.D{bson.E{Key: "id", Value: ID}}
 	err := GlobalVar.ResultCollection.FindOne(GlobalVar.Ctx, filter).Decode(&result)
-
 	return result, err
 }
